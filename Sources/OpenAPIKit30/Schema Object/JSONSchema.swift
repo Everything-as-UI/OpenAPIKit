@@ -1750,9 +1750,21 @@ extension JSONSchema: Decodable {
             }
         }
 
+        let hintContainer = try decoder.container(keyedBy: HintCodingKeys.self)
+        let typeHint = try hintContainer.decodeIfPresent(JSONType.self, forKey: .type)
+        let objectContainer = try decoder.container(keyedBy: JSONSchema.ObjectContext.CodingKeys.self)
+
         let container = try decoder.container(keyedBy: SubschemaCodingKeys.self)
 
         if container.contains(.allOf) {
+            /*var mainObject: JSONSchema?
+            if typeHint == .object || (typeHint == nil && !objectContainer.allKeys.isEmpty) {
+                mainObject = .object(try CoreContext<JSONTypeFormat.ObjectFormat>(from: decoder),
+                                     try ObjectContext(from: decoder))
+            }
+            let inheritedSchemas = try container.decode([JSONSchema].self, forKey: .allOf)
+            self = .all(
+                of: inheritedSchemas + (mainObject.map { [$0] } ?? []),*/
             var schema: JSONSchema = .all(
                 of: try container.decode([JSONSchema].self, forKey: .allOf),
                 core: try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
@@ -1801,14 +1813,11 @@ extension JSONSchema: Decodable {
             return
         }
 
-        let hintContainer = try decoder.container(keyedBy: HintCodingKeys.self)
         let hintContainerCount = hintContainer.allKeys.count
-        let typeHint = try hintContainer.decodeIfPresent(JSONType.self, forKey: .type)
 
         let numericOrIntegerContainer = try decoder.container(keyedBy: JSONSchema.NumericContext.CodingKeys.self)
         let stringContainer = try decoder.container(keyedBy: JSONSchema.StringContext.CodingKeys.self)
         let arrayContainer = try decoder.container(keyedBy: JSONSchema.ArrayContext.CodingKeys.self)
-        let objectContainer = try decoder.container(keyedBy: JSONSchema.ObjectContext.CodingKeys.self)
 
         let keysFrom = [
             numericOrIntegerContainer.allKeys.isEmpty ? nil : JSONType.number.group,
