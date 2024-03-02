@@ -1831,6 +1831,11 @@ extension JSONSchema: Decodable {
         }
 
         if container.contains(.anyOf) {
+            /*let items = try container.decode([JSONSchema].self, forKey: .anyOf)
+            let context = try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
+            self = .any(
+                of: items.filter { !$0.isNull },
+                core: items.contains { $0.isNull } ? context.nullableContext() : context*/
             let coreContext = try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
             var schema: JSONSchema = .init(
                 warnings: coreContext.warnings,
@@ -1848,6 +1853,11 @@ extension JSONSchema: Decodable {
         }
 
         if container.contains(.oneOf) {
+            /*let items = try container.decode([JSONSchema].self, forKey: .oneOf)
+            let context = try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
+            self = .one(
+                of: items.filter { !$0.isNull },
+                core: items.contains { $0.isNull } ? context.nullableContext() : context*/
             let coreContext = try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
             var schema: JSONSchema = .init(warnings: coreContext.warnings,
                 schema: .one(
@@ -2016,13 +2026,13 @@ extension JSONSchema: Decodable {
         let typeHints = try container.decodeIfPresent(Either<JSONType, [JSONType]>.self, forKey: .type)
         switch typeHints {
         case nil:
-            return []
+            return [.null]
         case .a(let type):
             return [type]
         case .b(let types):
             // filter out null if there are multiple types specified; null is handled by
             // the `nullable` decoding done by the CoreContext.
-            return types.filter { $0 != .null }
+            return types
         }
     }
 }
