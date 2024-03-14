@@ -1757,16 +1757,14 @@ extension JSONSchema: Decodable {
         let container = try decoder.container(keyedBy: SubschemaCodingKeys.self)
 
         if container.contains(.allOf) {
-            /*var mainObject: JSONSchema?
+            var mainObject: JSONSchema?
             if typeHint == .object || (typeHint == nil && !objectContainer.allKeys.isEmpty) {
                 mainObject = .object(try CoreContext<JSONTypeFormat.ObjectFormat>(from: decoder),
                                      try ObjectContext(from: decoder))
             }
             let inheritedSchemas = try container.decode([JSONSchema].self, forKey: .allOf)
-            self = .all(
-                of: inheritedSchemas + (mainObject.map { [$0] } ?? []),*/
             var schema: JSONSchema = .all(
-                of: try container.decode([JSONSchema].self, forKey: .allOf),
+                of: inheritedSchemas + (mainObject.map { [$0] } ?? []),
                 core: try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
             )
             if schema.subschemas.contains(where: { $0.nullable }) {
