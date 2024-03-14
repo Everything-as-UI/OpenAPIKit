@@ -978,7 +978,7 @@ extension JSONSchema.CoreContext: Decodable {
         else if let type = try? container.decodeIfPresent(JSONType.self, forKey: .type) {
             nullable = type == JSONType.null
         } else {
-          nullable = false
+            nullable = try container.contains(.type) && container.decodeNil(forKey: .type)
         }
         return (nullable, warnings)
     }

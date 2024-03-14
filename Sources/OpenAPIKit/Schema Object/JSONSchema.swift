@@ -1831,45 +1831,22 @@ extension JSONSchema: Decodable {
         }
 
         if container.contains(.anyOf) {
-            /*let items = try container.decode([JSONSchema].self, forKey: .anyOf)
+            let items = try container.decode([JSONSchema].self, forKey: .anyOf)
             let context = try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
             self = .any(
                 of: items.filter { !$0.isNull },
-                core: items.contains { $0.isNull } ? context.nullableContext() : context*/
-            let coreContext = try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
-            var schema: JSONSchema = .init(
-                warnings: coreContext.warnings,
-                schema: .any(
-                    of: try container.decode([JSONSchema].self, forKey: .anyOf),
-                    core: coreContext
-                )
+                core: items.contains { $0.isNull } ? context.nullableContext() : context
             )
-            if schema.subschemas.contains(where: { $0.nullable }) {
-                schema = schema.nullableSchemaObject()
-            }
-
-            self = schema
             return
         }
 
         if container.contains(.oneOf) {
-            /*let items = try container.decode([JSONSchema].self, forKey: .oneOf)
+            let items = try container.decode([JSONSchema].self, forKey: .oneOf)
             let context = try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
             self = .one(
                 of: items.filter { !$0.isNull },
-                core: items.contains { $0.isNull } ? context.nullableContext() : context*/
-            let coreContext = try CoreContext<JSONTypeFormat.AnyFormat>(from: decoder)
-            var schema: JSONSchema = .init(warnings: coreContext.warnings,
-                schema: .one(
-                    of: try container.decode([JSONSchema].self, forKey: .oneOf),
-                    core: coreContext
-                )
+                core: items.contains { $0.isNull } ? context.nullableContext() : context
             )
-            if schema.subschemas.contains(where: { $0.nullable }) {
-                schema = schema.nullableSchemaObject()
-            }
-
-            self = schema
             return
         }
 
